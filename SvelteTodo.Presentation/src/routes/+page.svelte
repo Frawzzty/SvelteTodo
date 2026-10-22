@@ -1,6 +1,47 @@
 <script lang="ts">
-    import TodoList from '../components/TodoList.svelte';
-import todoList from '../components/TodoList.svelte'
+    import { onMount } from 'svelte';
+
+    type TodoTask = {
+        id: string;
+        text: string;
+        isDone: boolean;
+        doneByDate: string;
+    }
+
+    let tasks = $state<TodoTask[]>([]);
+
+    // GET TASK LIST
+    onMount(async () => {
+        try {
+            const response = await fetch('https://localhost:7190/api/tasks');
+
+            if (!response.ok)
+                throw new Error(`Http Error: ${response.status}`)
+
+            tasks = await response.json();
+        }
+        catch{
+            console.log("Failed to load")
+        }
+    });
+
+    // DELTE Task by ID
+    async function OnClickDelteById(id:string){
+        try {
+              const response = await fetch(
+                `https://localhost:7190/api/tasks/${id}`,
+                { method: 'DELETE' }
+            );
+            
+            if(!response.ok)
+                throw new Error('Could not delte task')
+
+            console.log('Delete task successfully')
+        }
+        catch (error){
+            console.error(error);
+        }
+    }
 </script>
 
 <main>
@@ -13,6 +54,7 @@ import todoList from '../components/TodoList.svelte'
         </div>
         <div class="d-flex flex-column flex-gap">
             <input type="text" id="addtodo" class="textInput">
+            <input type="Date"/>
             <button class="primaryButton">Add</button>
         </div>
     </div>
@@ -20,15 +62,18 @@ import todoList from '../components/TodoList.svelte'
     <!-- DISPLAY TASKS -->
     <div class="todoTaskContainer">
         <h2>Tasks</h2>
-        <article class="todoTask">
-            <p>Task text</p>
-            <button class="primaryButton">Update</button>
-            <button class="primaryButton">Delete</button>
-        </article>
+        {#each tasks as task}
+            <article class="todoTask">
+                <p>{task.text}</p>
+                <p>Done: {task.isDone}</p>
+                <p>Date: {task.doneByDate}</p>
+                <button class="primaryButton">Update</button>
+                <button onclick={() => OnClickDelteById(task.id)}>Delete</button>
+            </article>
+        {/each}
+       
     </div>
 </main>
-
-<TodoList></TodoList>
 
 <style>
     :global(body) {
