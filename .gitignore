@@ -4,14 +4,14 @@
 ## Get latest from `dotnet new gitignore`
 
 # Svelte files
-node_modules
+node_modules/
 
 # Output
 .output
 .vercel
 .netlify
 .wrangler
-/.svelte-kit/
+**/.svelte-kit/
 /build
 
 # OS
