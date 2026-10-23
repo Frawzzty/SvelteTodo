@@ -1,6 +1,3 @@
 @SvelteTodo.API_HostAddress = http://localhost:5038
 
-GET {{SvelteTodo.API_HostAddress}}/weatherforecast/
-Accept: application/json
-
 ###
