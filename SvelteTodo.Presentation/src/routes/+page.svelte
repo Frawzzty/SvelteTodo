@@ -8,39 +8,90 @@
         doneByDate: string;
     }
 
+    let myTaskText:string = $state("");
+    let myTaskDoneDate:string = $state("");
+
     let tasks = $state<TodoTask[]>([]);
 
-    // GET TASK LIST
+    const baseUrl = "https://localhost:7190";
+    const endPoint = "/api/tasks";
+    
+    //refrence original url that worked 'https://localhost:7190/api/tasks'
+    
     onMount(async () => {
+        await GetTasksAsync();
+    });
+
+    // GET TASKS
+    async function GetTasksAsync(){
         try {
-            const response = await fetch('https://localhost:7190/api/tasks');
+            const response = await fetch(baseUrl + endPoint);
 
             if (!response.ok)
-                throw new Error(`Http Error: ${response.status}`)
+                throw new Error(`Http Error: ${response.status}`);
 
             tasks = await response.json();
         }
         catch{
             console.log("Failed to load")
         }
-    });
+    }
+
+    // Create Task
+    async function CreateTaskAsync(taskText:string, taskDate:string){
+        let newTask:TodoTask = {
+            id: "",
+            text: taskText,
+            isDone: false, // Default to false
+            doneByDate: taskDate
+        };
+
+        try {
+            const response = await fetch(baseUrl + endPoint, {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(newTask)
+            })
+
+            if (!response.ok)
+                throw new Error('Could not add task');
+
+            console.log('Added task successfully');
+
+            // Clear inputs
+            ClearNewTaskInputs();
+
+            //tasks.push(newTask) // Add in local list. Not good? as it might not include formating happening in the backend etc
+            await GetTasksAsync();
+        }
+        catch (error){{
+            console.error(error);
+        }}
+
+    }
 
     // DELTE Task by ID
-    async function OnClickDelteById(id:string){
+    async function DeleteTaskAsync(id:string){
         try {
-              const response = await fetch(
-                `https://localhost:7190/api/tasks/${id}`,
-                { method: 'DELETE' }
+              const response = await fetch(`${baseUrl}${endPoint}/${id}`, { method: 'DELETE' }
             );
             
             if(!response.ok)
-                throw new Error('Could not delte task')
+                throw new Error('Could not delete task')
 
             console.log('Delete task successfully')
+
+            // Remove localy if api managed to delete it;
+            tasks = tasks.filter(task => task.id !== id);
         }
         catch (error){
             console.error(error);
         }
+    }
+
+    function ClearNewTaskInputs(){
+        myTaskText = "";
+        myTaskDoneDate = "";
     }
 </script>
 
@@ -53,9 +104,9 @@
             <label for="addtodo">New task</label>
         </div>
         <div class="d-flex flex-column flex-gap">
-            <input type="text" id="addtodo" class="textInput">
-            <input type="Date"/>
-            <button class="primaryButton">Add</button>
+            <input type="text" id="addtodo" class="textInput" bind:value={myTaskText}>
+            <input type="Date" bind:value={myTaskDoneDate}/>
+            <button onclick={() => CreateTaskAsync(myTaskText, myTaskDoneDate)} class="primaryButton">Add</button>
         </div>
     </div>
 
@@ -68,7 +119,7 @@
                 <p>Done: {task.isDone}</p>
                 <p>Date: {task.doneByDate}</p>
                 <button class="primaryButton">Update</button>
-                <button onclick={() => OnClickDelteById(task.id)}>Delete</button>
+                <button class="primaryButton" onclick={() => DeleteTaskAsync(task.id)}>Delete</button>
             </article>
         {/each}
        
