@@ -145,7 +145,7 @@
 </main>
 
 {#snippet SnippetTodoTask (theTask:TodoTask)}
-    <article class="todoTask">
+    <article class="todoTask mb-1">
     
     <!-- Edit mode -->
     {#if editId == theTask.id}
@@ -165,9 +165,11 @@
 
     <!-- Display mode -->
     {:else}
-        <p>{theTask.text}</p>
-        <p>Done: {theTask.isDone}</p>
-        <p>Date: {theTask.doneByDate}</p>
+        <div class="d-flex flex-gap">
+            <input type="checkbox" checked={theTask.isDone} disabled class="task-checkbox"/>
+            <h3>{theTask.text}</h3>
+        </div>
+        <p>End date: {theTask.doneByDate}</p>
 
         <button class="primaryButton" onclick={() => {
            editId = theTask.id
@@ -181,6 +183,7 @@
 
 <style>
     :global(body) {
+        font-family: Arial, sans-serif;
         background-color: var(--main-bg-color);
         color: white;
         margin: 0;
@@ -230,6 +233,10 @@
     .flex-gap{
         gap: 0.25rem;
     }
+
+    .mb-1 {
+        margin-bottom: 1rem;
+    }
     
     .addTodoContainer{
         background: var(--accent-bg-color);
@@ -271,4 +278,10 @@
         padding-top: 0.5rem;
         padding-bottom: 0.5rem;
     }
+
+
+    .task-checkbox{
+        width: 1rem;
+    }
+
 </style>
