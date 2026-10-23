@@ -47,9 +47,14 @@ namespace SvelteTodo.API.Services
 
         public async Task AddTodoTask(TodoTask newTodoTask)
         {
-            if (newTodoTask == null) throw new ArgumentNullException("Todo task was null");
+            if (newTodoTask == null) 
+                throw new ArgumentNullException("Todo task was null");
+            if(string.IsNullOrWhiteSpace(newTodoTask.Text))
+                throw new ArgumentNullException("Todo task text is null or empty");
+            if (newTodoTask.DoneByDate == default)
+                throw new ArgumentNullException("Todo task date was default value");
 
-            if(string.IsNullOrWhiteSpace(newTodoTask.Id))
+            if (string.IsNullOrWhiteSpace(newTodoTask.Id))
                 newTodoTask.Id = Guid.NewGuid().ToString();
 
             await _context.AddAsync(newTodoTask);
